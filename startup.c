@@ -245,6 +245,13 @@ void Reset_Handler(void){
   _initialize_data(&_sidata,&_sdata,&_edata);
   _initialize_bss(&_sbss,&_ebss);
   SystemInit();
+  /*stack painting CCMRAM */
+  uint32_t * start = (uint32_t *) (&_start_os_stack);
+  uint32_t * dest = (uint32_t *) (&_end_os_stack);
+  while(start<dest){
+    *start = 0xAE86AE86;
+    ++start;
+  }
   main();
   for(;;);
 }

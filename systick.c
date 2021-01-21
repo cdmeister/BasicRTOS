@@ -1,5 +1,9 @@
 #include "systick.h"
 
+volatile uint32_t TimeDelay;
+volatile uint32_t milliseconds;
+
+
 /* SysTick System Handler */
 void SysTick_Handler(void){
   /* TimeDelay is a global variable delcared as volatile */
@@ -23,7 +27,8 @@ void SysTick_Init (uint32_t ticks){
 
   /*Disable SysTick IRQ and SysTick counter*/
   SysTick->CTRL = 0;
-
+  TimeDelay = 0;
+  milliseconds = 0;
   /* Set reload register */
   SysTick->LOAD = ticks - 1;
 

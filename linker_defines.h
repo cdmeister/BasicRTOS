@@ -22,8 +22,8 @@ extern uint32_t _ebss;
 extern uint32_t _start_heap;
 extern uint32_t _end_heap;
 
-extern uint32_t _os_stack_start;
-extern uint32_t _os_stack_stop;
+extern uint32_t _start_os_stack;
+extern uint32_t _end_os_stack;
 
 
 #define FLASH_BASE            0x08000000U /*!< FLASH(up to 1 MB) base address in the alias region                         */

@@ -77,6 +77,8 @@ SECTIONS {
   } >RAM
 }
 
+PROVIDE(_start_os_stack = ORIGIN(CCMRAM));
+PROVIDE(_end_os_stack = ORIGIN(CCMRAM) + LENGTH(CCMRAM));
 PROVIDE(_end_heap = ORIGIN(RAM) + LENGTH(RAM));
 /*
  * Necessary group so the newlib stubs provided in the library,
