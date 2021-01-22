@@ -35,7 +35,10 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
   t->state = TASK_READY;
   t->start = start;
   t->arg = arg;
-  t->sp =(uint32_t*) ((&_start_os_stack) + (n_tasks * STACK_SIZE));
+  /* needs to be a uint8_t because in task_stack_init, it can decrement
+     the stack pointer correctly
+  */
+  t->sp =(uint8_t*) ((&_start_os_stack) + (n_tasks * STACK_SIZE));
   task_stack_init(t);
   return t;
 }

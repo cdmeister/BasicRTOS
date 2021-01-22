@@ -26,7 +26,7 @@ struct task_block {
   int state;
   void (*start)(void *arg);
   void *arg;
-  uint32_t * sp;
+  uint8_t * sp;
 };
 
 
