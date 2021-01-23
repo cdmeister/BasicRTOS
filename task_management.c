@@ -37,8 +37,10 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
   t->arg = arg;
   /* needs to be a uint8_t because in task_stack_init, it can decrement
      the stack pointer correctly
+    (n_tasks-1) because only user created task in CCMRAM, kernel is still in
+    SRAM.
   */
-  t->sp =(uint8_t*) ((&_start_os_stack) + (n_tasks * STACK_SIZE));
+  t->sp =(uint8_t*) ((&_start_os_stack) + ((n_tasks-1) * STACK_SIZE));
   task_stack_init(t);
   return t;
 }
