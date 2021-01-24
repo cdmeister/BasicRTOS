@@ -34,16 +34,10 @@ extern struct task_block TASKS[MAX_TASKS];
 void task_test0(void *arg)
 {
     uint32_t now = millis();
-    blue_led_on();
     while(1) {
-        if ((millis() - now) > 1000) {
-
-            blue_led_off();
-            schedule();
-            now = millis();
-            blue_led_on();
-
-            /*blue_led_toggle();*/
+        if ((millis() - now) > 2000) {
+          blue_led_toggle();
+          now = millis();
         }
     }
 }
@@ -51,15 +45,10 @@ void task_test0(void *arg)
 void task_test1(void *arg)
 {
     uint32_t now = millis();
-    red_led_on();
     while(1) {
         if ((millis() - now) > 1000) {
-            red_led_off();
-            schedule();
-            now = millis();
-            red_led_on();
-
-            /*red_led_toggle();*/
+          red_led_toggle();
+          now = millis();
         }
     }
 }
@@ -80,7 +69,7 @@ int main(void)
         system_stm32f4xx.c file
      */
   unsigned int delay =0;
-  SysTick_Init(SystemCoreClock/1000);
+  SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
   ledInit();
   kernel.name[0] = 0;
   kernel.id = 0;
@@ -88,9 +77,11 @@ int main(void)
   task_create("test0", task_test0, NULL);
   task_create("test1", task_test1, NULL);
   /* Infinite loop */
+  SysTick_Init(SystemCoreClock/1000);
   while (1)
   {
-    schedule();
+    __NOP();
+    /*schedule();*/
   }
 
 }

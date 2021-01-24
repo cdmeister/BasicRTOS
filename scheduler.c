@@ -24,3 +24,7 @@ void __attribute__((naked)) PendSV_Handler(void){
 void UsageFault_Handler(void){
   while(1);
 }
+
+void HardFault_Handler(void){
+  while(1);
+}
