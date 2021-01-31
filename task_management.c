@@ -8,6 +8,9 @@ struct task_block TASKS[MAX_TASKS];
 int n_tasks = 1;
 int running_task_id = 0;
 
+struct task_block * tasklist_waiting;
+struct task_block * tasklist_active;
+struct task_block * t_cur = &TASKS[0];
 
 void task_stack_init(struct task_block *t){
   struct stack_frame * tf;
@@ -42,6 +45,7 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
   */
   t->sp =(uint8_t*) ((&_start_os_stack) + ((n_tasks-1) * STACK_SIZE));
   task_stack_init(t);
+  tasklist_add(&tasklist_active, t);
   return t;
 }
 void __attribute__((naked)) store_context (void){
@@ -62,3 +66,50 @@ void __attribute__((naked)) restore_context (void){
 
 }
 
+void tasklist_add(struct task_block ** list, struct task_block * el){
+
+  el->next = *list;
+  *list = el;
+
+}
+int tasklist_del(struct task_block ** list, struct task_block * delme){
+
+  struct task_block * t = *list;
+  struct task_block * p = NULL;
+
+  while(t){
+    if(delme == t){
+      if(p==NULL){
+        *list = t->next;
+      }
+      else{
+        p->next=t->next;
+      }
+      return 0;
+    }
+    p=t;
+    t=t->next;
+  }
+  return -1;
+}
+
+void task_waiting(struct task_block * t){
+  if(tasklist_del(&tasklist_active, t) == 0){
+    t->state = TASK_WAITING;
+    tasklist_add(&tasklist_waiting, t);
+  }
+}
+void task_ready(struct task_block * t){
+  if(tasklist_del(&tasklist_waiting, t) == 0){
+    t->state = TASK_READY;
+    tasklist_add(&tasklist_active, t);
+  }
+
+}
+
+struct task_block * tasklist_next_ready(struct task_block * t){
+  if((t->next == NULL) || (t->next->state != TASK_READY)){
+    return tasklist_active;
+  }
+  return t->next;
+}

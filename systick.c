@@ -1,5 +1,6 @@
 #include "systick.h"
 #include "scheduler.h"
+#include "task_management.h"
 
 volatile uint32_t TimeDelay;
 volatile uint32_t milliseconds;
@@ -64,3 +65,9 @@ void SysTick_Init (uint32_t ticks){
 
 }
 
+void sleep_ms(uint32_t ms){
+  if(ms < TIMESLICE) return;
+  t_cur->wakeup_time = ms + millis();
+  task_waiting(t_cur);
+  schedule();
+}

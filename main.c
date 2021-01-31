@@ -33,23 +33,19 @@ extern struct task_block TASKS[MAX_TASKS];
 
 void task_test0(void *arg)
 {
-    uint32_t now = millis();
+    blue_led_on();
     while(1) {
-        if ((millis() - now) > 2000) {
-          blue_led_toggle();
-          now = millis();
-        }
+      sleep_ms(500);
+      blue_led_toggle();
     }
 }
 
 void task_test1(void *arg)
 {
-    uint32_t now = millis();
+    red_led_on();
     while(1) {
-        if ((millis() - now) > 1000) {
-          red_led_toggle();
-          now = millis();
-        }
+      sleep_ms(125);
+      red_led_toggle();
     }
 }
 
@@ -74,14 +70,24 @@ int main(void)
   kernel.name[0] = 0;
   kernel.id = 0;
   kernel.state = TASK_RUNNING;
+  kernel.wakeup_time = 0;
+  tasklist_add(&tasklist_active, &kernel);
   task_create("test0", task_test0, NULL);
   task_create("test1", task_test1, NULL);
   /* Infinite loop */
   SysTick_Init(SystemCoreClock/1000);
   while (1)
   {
-    __NOP();
-    /*schedule();*/
+    struct task_block *t = tasklist_waiting;
+    while(t){
+      if (t->wakeup_time && (t->wakeup_time < millis())){
+        t->wakeup_time = 0;
+        task_ready(t);
+        break;
+      }
+      t=t->next;
+    }
+    __WFI();
   }
 
 }

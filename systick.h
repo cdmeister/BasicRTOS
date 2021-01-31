@@ -24,6 +24,7 @@ void Delay(uint32_t nTime);
 uint32_t millis();
 void SysTick_Handler(void);
 void SysTick_Init(uint32_t ticks);
+void sleep_ms(uint32_t ms);
 /* Private variables -------------------------------------------------------- */
 extern volatile uint32_t TimeDelay;
 extern volatile uint32_t milliseconds;

@@ -17,6 +17,10 @@
 #define TASK_NAME_MAXLEN    16
 #define MAX_TASKS           8
 
+extern struct task_block * tasklist_waiting;
+extern struct task_block * tasklist_active;
+extern struct task_block * t_cur;
+
 
 
 /* Task block structure */
@@ -27,6 +31,8 @@ struct task_block {
   void (*start)(void *arg);
   void *arg;
   uint8_t * sp;
+  uint32_t wakeup_time;
+  struct task_block * next;
 };
 
 
@@ -49,5 +55,20 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
 
 void __attribute__((naked)) store_context (void);
 void __attribute__((naked)) restore_context (void);
+
+/* Add to front of list */
+void tasklist_add(struct task_block ** list, struct task_block * el);
+
+/* Delete matching from list */
+int tasklist_del(struct task_block ** list, struct task_block * delme);
+
+/* Move task from active to the waiting queue */
+void task_waiting(struct task_block * t);
+
+/* Move task from waiting to the active queue */
+void task_ready(struct task_block * t);
+
+/* Grab the next active task */
+struct task_block * tasklist_next_ready(struct task_block * t);
 
 #endif /*TASK_MANAGEMENT_H*/
