@@ -14,6 +14,7 @@ struct task_block * t_cur = &TASKS[0];
 
 void task_stack_init(struct task_block *t){
   struct stack_frame * tf;
+  struct extra_frame * ex;
   t->sp -= sizeof(struct stack_frame);
   tf = (struct stack_frame *)(t->sp);
   tf->r0 = (uint32_t) t->arg;
@@ -21,6 +22,7 @@ void task_stack_init(struct task_block *t){
   tf->lr = (uint32_t) Default_Handler;
   tf->xpsr =  0x01000000;
   t->sp -= sizeof(struct extra_frame);
+  ex = (struct extra_frame *)(t->sp);
 }
 
 struct task_block * task_create(char * name, void (*start)(void *arg),

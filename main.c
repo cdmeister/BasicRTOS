@@ -5,6 +5,7 @@
 #include "task_management.h"
 #include "systick.h"
 #include "scheduler.h"
+#include "button.h"
 
 /* Work out end of RAM address as intial stack pointer, Use both
  * (specific of a given STM32 MCU)
@@ -49,6 +50,23 @@ void task_test1(void *arg)
     }
 }
 
+
+void task_test2(void *arg)
+{
+    uint32_t toggle_time = 0;
+    green_led_off();
+    while(1) {
+        if (button_read()) {
+            if ((millis() - toggle_time) > 120) {
+                green_led_toggle();
+                toggle_time = millis();
+            }
+        }
+    }
+}
+
+
+
 /**
   * @brief   Main program
   * @param  None
@@ -67,6 +85,7 @@ int main(void)
   unsigned int delay =0;
   SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
   ledInit();
+  button_setup(button_wakeup);
   kernel.name[0] = 0;
   kernel.id = 0;
   kernel.state = TASK_RUNNING;
@@ -74,6 +93,7 @@ int main(void)
   tasklist_add(&tasklist_active, &kernel);
   task_create("test0", task_test0, NULL);
   task_create("test1", task_test1, NULL);
+  task_create("test2", task_test2, NULL);
   /* Infinite loop */
   SysTick_Init(SystemCoreClock/1000);
   while (1)
