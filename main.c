@@ -90,10 +90,11 @@ int main(void)
   kernel.id = 0;
   kernel.state = TASK_RUNNING;
   kernel.wakeup_time = 0;
-  tasklist_add(&tasklist_active, &kernel);
-  task_create("test0", task_test0, NULL);
-  task_create("test1", task_test1, NULL);
-  task_create("test2", task_test2, NULL);
+  kernel.priority = 0;
+  tasklist_add_active( &kernel);
+  task_create("test0", task_test0, NULL, 1);
+  task_create("test1", task_test1, NULL, 1);
+  task_create("test2", task_test2, NULL, 3);
   /* Infinite loop */
   SysTick_Init(SystemCoreClock/1000);
   while (1)
