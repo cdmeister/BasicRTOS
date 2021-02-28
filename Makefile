@@ -8,14 +8,17 @@ DEBUG = 1
 BUILD_DIR = build
 
 SRC_FILES := $(wildcard  *.c)
+SRC_ASM_FILES := $(wildcard *.s)
 
-SRC_DIRS := $(sort $(dir $(SRC_FILES)))
+SRC_DIRS := $(sort $(dir $(SRC_FILES)) $(dir $(SRC_ASM_FILES)) )
 OBJ_FILES := $(subst ../../,,$(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SRC_FILES))))
+OBJ_FILES += $(OBJ_FILES)  $(subst ../../,,$(patsubst %.s,$(BUILD_DIR)/%.o,$(notdir $(SRC_ASM_FILES))))
 OBJ_DIRS :=$(sort  $(subst ../../,, $(dir $(OBJ_FILES))))
 
 VPATH := $(SRC_DIRS)
 
 $(info SRC_FILES is $(SRC_FILES))
+$(info SRC_ASM_FILES is $(SRC_ASM_FILES))
 $(info SRC_DIRS is $(SRC_DIRS))
 $(info OBJ_FILES is $(OBJ_FILES))
 $(info OBJ_DIRS is $(OBJ_DIRS))
@@ -39,6 +42,7 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CROSS_COMPILE)gcc
 CP = $(CROSS_COMPILE)objcopy
 SZ = $(CROSS_COMPILE)size
+AS = $(CROSS_COMPILE)gcc -x assembler-with-cpp
 
 
 # GCC FLAGS
@@ -62,7 +66,12 @@ endif
 
 # Compiler Flags
 #CFLAGS += -ffreestanding
-CFLAGS += $(MCU) $(DEBUG_FLAG) $(OPT) $(GCC_STANDARD) $(DEPENDECY)\
+CFLAGS = $(MCU) $(DEBUG_FLAG) $(OPT) $(GCC_STANDARD) $(DEPENDECY)\
+					-$(INC_DIR) \
+					-ffreestanding -ffunction-sections -nostdlib \
+					-fdata-sections
+
+ASFLAGS = $(MCU) $(DEBUG_FLAG) $(OPT) $(GCC_STANDARD) $(DEPENDECY)\
 					-$(INC_DIR) \
 					-ffreestanding -ffunction-sections -nostdlib \
 					-fdata-sections
@@ -100,6 +109,9 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJ_FILES) | directories
 
 $(BUILD_DIR)/%.o: %.c | directories
 	$(CC) $(CFLAGS)  -c $< -o $@
+
+$(BUILD_DIR)/%.o: %.s | directories
+	$(AS) $(ASFLAGS)  -c $< -o $@
 
 -include $(OBJ_FILES:.o=.d)
 

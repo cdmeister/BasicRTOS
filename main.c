@@ -6,6 +6,7 @@
 #include "systick.h"
 #include "scheduler.h"
 #include "button.h"
+#include "lock.h"
 
 /* Work out end of RAM address as intial stack pointer, Use both
  * (specific of a given STM32 MCU)
@@ -18,6 +19,7 @@
 /* Private define ------------------------------------------------------------*/
 extern uint32_t SystemCoreClock;
 extern struct task_block TASKS[MAX_TASKS];
+extern mutex m;
 #define kernel TASKS[0]
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -34,10 +36,13 @@ extern struct task_block TASKS[MAX_TASKS];
 
 void task_test0(void *arg)
 {
-    blue_led_on();
     while(1) {
+      blue_led_on();
+      mutex_lock(&m);
       sleep_ms(500);
-      blue_led_toggle();
+      blue_led_off();
+      mutex_unlock(&m);
+      sleep_ms(1000);
     }
 }
 
@@ -45,8 +50,10 @@ void task_test1(void *arg)
 {
     red_led_on();
     while(1) {
-      sleep_ms(125);
+      sleep_ms(50);
+      mutex_lock(&m);
       red_led_toggle();
+      mutex_unlock(&m);
     }
 }
 
@@ -97,6 +104,7 @@ int main(void)
   task_create("test2", task_test2, NULL, 3);
   /* Infinite loop */
   SysTick_Init(SystemCoreClock/1000);
+  mutex_init(&m);
   while (1)
   {
     struct task_block *t = tasklist_waiting;
