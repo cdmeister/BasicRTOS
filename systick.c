@@ -69,5 +69,5 @@ void sleep_ms(uint32_t ms){
   if(ms < TIMESLICE) return;
   t_cur->wakeup_time = ms + millis();
   task_waiting(t_cur);
-  schedule();
+  syscall(SYS_SCHEDULE);
 }

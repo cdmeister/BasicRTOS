@@ -55,7 +55,7 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
   tasklist_add_active(t);
   return t;
 }
-void __attribute__((naked)) store_context (void){
+void __attribute__((naked)) store_kernel_context (void){
 
   __asm__ volatile ("mrs r0, msp");
   __asm__ volatile ("stmdb r0!, {r4-r11}");
@@ -64,7 +64,7 @@ void __attribute__((naked)) store_context (void){
 
 }
 
-void __attribute__((naked)) restore_context (void){
+void __attribute__((naked)) restore_kernel_context (void){
 
   __asm__ volatile ("mrs r0, msp");
   __asm__ volatile ("ldmfd r0!, {r4-r11}");
@@ -72,6 +72,25 @@ void __attribute__((naked)) restore_context (void){
   __asm__ volatile ("bx lr");
 
 }
+
+void __attribute__((naked)) store_user_context (void){
+
+  __asm__ volatile ("mrs r0, psp");
+  __asm__ volatile ("stmdb r0!, {r4-r11}");
+  __asm__ volatile ("msr psp, r0");
+  __asm__ volatile ("bx lr");
+
+}
+
+void __attribute__((naked)) restore_user_context (void){
+
+  __asm__ volatile ("mrs r0, psp");
+  __asm__ volatile ("ldmfd r0!, {r4-r11}");
+  __asm__ volatile ("msr psp, r0");
+  __asm__ volatile ("bx lr");
+
+}
+
 
 void tasklist_add(struct task_block ** list, struct task_block * el){
   el->next = *list;

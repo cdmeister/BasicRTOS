@@ -7,6 +7,7 @@
 #include "scheduler.h"
 #include "button.h"
 #include "lock.h"
+#include "mpu.h"
 
 /* Work out end of RAM address as intial stack pointer, Use both
  * (specific of a given STM32 MCU)
@@ -37,10 +38,10 @@ extern mutex m;
 void task_test0(void *arg)
 {
     while(1) {
-      blue_led_on();
+      syscall(SYS_BLUELED_ON);
       mutex_lock(&m);
       sleep_ms(500);
-      blue_led_off();
+      syscall(SYS_BLUELED_OFF);
       mutex_unlock(&m);
       sleep_ms(1000);
     }
@@ -48,11 +49,11 @@ void task_test0(void *arg)
 
 void task_test1(void *arg)
 {
-    red_led_on();
+    syscall(SYS_REDLED_ON);
     while(1) {
       sleep_ms(50);
       mutex_lock(&m);
-      red_led_toggle();
+      syscall(SYS_REDLED_TOGGLE);
       mutex_unlock(&m);
     }
 }
@@ -61,11 +62,11 @@ void task_test1(void *arg)
 void task_test2(void *arg)
 {
     uint32_t toggle_time = 0;
-    green_led_off();
+    syscall(SYS_GREENLED_OFF);
     while(1) {
         if (button_read()) {
             if ((millis() - toggle_time) > 120) {
-                green_led_toggle();
+                syscall(SYS_GREENLED_TOGGLE);
                 toggle_time = millis();
             }
         }
@@ -92,6 +93,7 @@ int main(void)
   unsigned int delay =0;
   SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk;
   ledInit();
+  mpu_enable();
   button_setup(button_wakeup);
   kernel.name[0] = 0;
   kernel.id = 0;

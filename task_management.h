@@ -55,8 +55,11 @@ struct task_block * task_create(char * name, void (*start)(void *arg),
 
 
 
-void __attribute__((naked)) store_context (void);
-void __attribute__((naked)) restore_context (void);
+void __attribute__((naked)) store_kernel_context (void);
+void __attribute__((naked)) restore_kernel_context (void);
+void __attribute__((naked)) store_user_context (void);
+void __attribute__((naked)) restore_user_context (void);
+
 
 /* Add to front of list */
 void tasklist_add(struct task_block ** list, struct task_block * el);

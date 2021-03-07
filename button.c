@@ -91,8 +91,7 @@ int button_read(void)
         return 0;
     button_task = t_cur;
     task_waiting(t_cur);
-    button_start_read();
-    schedule();
+    syscall(SYS_BUTTON_READ);
     return 1;
 }
 

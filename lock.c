@@ -29,7 +29,7 @@ int sem_wait(semaphore *s)
     }
     /* if you failed, then get added to waiting queue */
     task_waiting(t_cur);
-    schedule();
+    syscall(SYS_SCHEDULE);
     return sem_wait(s);
 }
 
@@ -48,7 +48,7 @@ int sem_post(semaphore *s)
                 s->listeners[i] = 0;
             }
         }
-        schedule();
+        syscall(SYS_SCHEDULE);
     }
     return 0;
 }
